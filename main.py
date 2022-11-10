@@ -13,7 +13,7 @@ window.configure(bg="#FFFFFF")
 
 nome_do_projeto = StringVar()
 prefixo = StringVar()
-
+check_clock = BooleanVar()
 
 def get_prefixo():
     print(prefixo.get())
@@ -22,17 +22,43 @@ def get_prefixo():
 def get_nome_do_projeto():
     return nome_do_projeto.get().upper()
 
+def gerar_arquivo_qpf():
+    projeto = get_nome_do_projeto()
+    nome_arquivo='{}.qpf'.format(projeto)
+    data = datetime.now()
+
+    qpf = open(nome_arquivo, 'w')
+    qpf.write(data.strftime('DATE = \"%H:%M:%S %B %d, %Y\"\n'))
+    qpf.write('QUARTUS_VERSION = \"16.0.0\"\n')
+    qpf.write('\n')
+    qpf.write('# Revisions\n')
+    qpf.write('\n')
+    qpf.write('PROJECT_REVISION = \"{}\"\n'.format(get_nome_do_projeto()))
+
+    qpf.close()
+
+
+def gerar_arquivo_sdc():
+    projeto = get_nome_do_projeto()
+    nome_arquivo='{}.sdc'.format(projeto)
+
+    if check_clock.get() == True:
+        f = open('auxiliar/com_clock.sdc', 'r')
+        buffer = f.read()
+        f.close()
+    else:
+        f = open('auxiliar/sem_clock.sdc', 'r')
+        buffer = f.read()
+        f.close()
+
+    sdc = open(nome_arquivo, 'w')
+    sdc.write(buffer)
+    sdc.close()
+
 
 def gerar_codigo():
-    # f = open("demofile2.qpf", "w")
-    # f.write("Now the file has more content!")
-    # f.close()
-
-    now = datetime.now()
-    print(now.strftime("DATE = \"%H:%M:%S %B %d, %Y\""))
-    print("QUARTUS_VERSION = \"16.0.0\"\n")
-    print("# Revisions\n")
-    print('PROJECT_REVISION = \"{}\"'.format(get_nome_do_projeto()))
+    #gerar_arquivo_qpf()
+    gerar_arquivo_sdc()
 
 
 def gerar_botoes_rodape(frame, padding_x=40, ipad_x=10):
@@ -61,7 +87,7 @@ frame_selecao.pack(fill=X, side=LEFT)
 Label(frame_selecao, text="Nome do Projeto:").place(anchor='nw')
 Entry(frame_selecao, width=40, textvariable=nome_do_projeto).place(rely=0.06, anchor='nw')
 
-Checkbutton(frame_selecao, text='CLOCK', onvalue=True, offvalue=False).place(relx=0.05, rely=0.2)
+Checkbutton(frame_selecao, text='CLOCK', onvalue=True, offvalue=False, variable=check_clock).place(relx=0.05, rely=0.2)
 Checkbutton(frame_selecao, text='LED X 10', onvalue=True, offvalue=False).place(relx=0.05, rely=0.3)
 Checkbutton(frame_selecao, text='Botão x 2', onvalue=True, offvalue=False).place(relx=0.05, rely=0.4)
 Checkbutton(frame_selecao, text='VGA', onvalue=True, offvalue=False).place(relx=0.05, rely=0.5)
