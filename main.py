@@ -8,11 +8,12 @@ window = Tk()
 window.title("Gerador de Código")
 
 window.geometry("730x450")
-window.configure(bg = "#FFFFFF")
+window.configure(bg="#FFFFFF")
 
 
 nome_do_projeto = StringVar()
 prefixo = StringVar()
+
 
 def get_prefixo():
     print(prefixo.get())
@@ -20,6 +21,7 @@ def get_prefixo():
 
 def get_nome_do_projeto():
     return nome_do_projeto.get().upper()
+
 
 def gerar_codigo():
     # f = open("demofile2.qpf", "w")
@@ -33,9 +35,7 @@ def gerar_codigo():
     print('PROJECT_REVISION = \"{}\"'.format(get_nome_do_projeto()))
 
 
-def gerar_botoes_rodape(frame):
-    padding_x = 30
-    ipad_x = 15
+def gerar_botoes_rodape(frame, padding_x=40, ipad_x=10):
     Button(frame, text="Salvar Configuração").grid(row=0, column=0, padx=padding_x, pady=3, ipadx=ipad_x)
     Button(frame, text="Carregar Configuração").grid(row=0, column=1, padx=padding_x, pady=3, ipadx=ipad_x)
     Button(frame, text="Gerar", command=gerar_codigo).grid(row=0, column=2, padx=padding_x, pady=3, ipadx=ipad_x)
@@ -48,14 +48,9 @@ def gerar_rodape(largura, altura, background_color):
     gerar_botoes_rodape(frame_rodape)
 
 
-
 frame_selecao = LabelFrame(window, width=350, height=400, text="Configurações do Sistema")
 
-
-
-
 gerar_rodape(350, 50, "#f0f0f0")
-
 
 frame_imagem = LabelFrame(window, width=380, height=400, text="Cyclone IV")
 image = ImageTk.PhotoImage(Image.open("assets/img.png"))
@@ -72,17 +67,14 @@ Checkbutton(frame_selecao, text='Botão x 2', onvalue=True, offvalue=False).plac
 Checkbutton(frame_selecao, text='VGA', onvalue=True, offvalue=False).place(relx=0.05, rely=0.5)
 Checkbutton(frame_selecao, text='Arduino Header', onvalue=True, offvalue=False).place(relx=0.05, rely=0.6)
 
-
 Checkbutton(frame_selecao, text='7-Segmentos X 6', onvalue=True, offvalue=False).place(relx=0.6, rely=0.2)
 Checkbutton(frame_selecao, text='Switch X 10', onvalue=True, offvalue=False).place(relx=0.6, rely=0.3)
 Checkbutton(frame_selecao, text='Acelerometro', onvalue=True, offvalue=False).place(relx=0.6, rely=0.4)
 Checkbutton(frame_selecao, text='SDRAM, 64 MB', onvalue=True, offvalue=False).place(relx=0.6, rely=0.5)
 
-
-
 Label(frame_selecao, text="Cabeçalho 2x20 GPIO").place(anchor ='sw', rely=0.8)
 Label(frame_selecao, text="Prefixo:").place(anchor='sw', rely=0.95)
-Entry(frame_selecao, width=20, textvariable = prefixo).place(anchor='sw', rely=0.95, relx=0.15)
+Entry(frame_selecao, width=20, textvariable=prefixo).place(anchor='sw', rely=0.95, relx=0.15)
 
 
 window.resizable(False, False)
