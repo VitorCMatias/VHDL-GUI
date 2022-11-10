@@ -33,22 +33,33 @@ def gerar_codigo():
     print('PROJECT_REVISION = \"{}\"'.format(get_nome_do_projeto()))
 
 
-frame_imagem = LabelFrame(window, width=380, height=400, text="Cyclone IV")
+def gerar_botoes_rodape(frame):
+    padding_x = 30
+    ipad_x = 15
+    Button(frame, text="Salvar Configuração").grid(row=0, column=0, padx=padding_x, pady=3, ipadx=ipad_x)
+    Button(frame, text="Carregar Configuração").grid(row=0, column=1, padx=padding_x, pady=3, ipadx=ipad_x)
+    Button(frame, text="Gerar", command=gerar_codigo).grid(row=0, column=2, padx=padding_x, pady=3, ipadx=ipad_x)
+    Button(frame, text="Sair", command=get_prefixo).grid(row=0, column=3, padx=padding_x, pady=3, ipadx=ipad_x)
+
+
+def gerar_rodape(largura, altura, background_color):
+    frame_rodape = Frame(window, width=largura, height=altura, bg=background_color)
+    frame_rodape.pack(fill=X, side=BOTTOM)
+    gerar_botoes_rodape(frame_rodape)
+
+
+
 frame_selecao = LabelFrame(window, width=350, height=400, text="Configurações do Sistema")
-frame_rodape = Frame(window, width=350, height=50)
-frame_rodape.pack(fill=X, side=BOTTOM)
 
-padding_x = 30
-ipad_x = 15
 
-Button(frame_rodape, text="Salvar Configuração").grid(row=0, column=0, padx=padding_x, pady=3, ipadx=ipad_x)
-Button(frame_rodape, text="Carregar Configuração").grid(row=0, column=1, padx=padding_x, pady=3, ipadx=ipad_x)
-Button(frame_rodape, text="Gerar", command = gerar_codigo).grid(row=0, column=2, padx=padding_x, pady=3, ipadx=ipad_x)
-Button(frame_rodape, text="Sair", command = get_prefixo).grid(row=0, column=3, padx=padding_x, pady=3, ipadx=ipad_x)
 
+
+gerar_rodape(350, 50, "#f0f0f0")
+
+
+frame_imagem = LabelFrame(window, width=380, height=400, text="Cyclone IV")
 image = ImageTk.PhotoImage(Image.open("assets/img.png"))
-img = Label(frame_imagem, image = image)
-img.place(relx=0.5, rely=0.5, anchor=CENTER)
+Label(frame_imagem, image=image).place(relx=0.5, rely=0.5, anchor=CENTER)
 frame_imagem.pack(fill=X, side=LEFT)
 
 frame_selecao.pack(fill=X, side=LEFT)
@@ -66,6 +77,8 @@ Checkbutton(frame_selecao, text='7-Segmentos X 6', onvalue=True, offvalue=False)
 Checkbutton(frame_selecao, text='Switch X 10', onvalue=True, offvalue=False).place(relx=0.6, rely=0.3)
 Checkbutton(frame_selecao, text='Acelerometro', onvalue=True, offvalue=False).place(relx=0.6, rely=0.4)
 Checkbutton(frame_selecao, text='SDRAM, 64 MB', onvalue=True, offvalue=False).place(relx=0.6, rely=0.5)
+
+
 
 Label(frame_selecao, text="Cabeçalho 2x20 GPIO").place(anchor ='sw', rely=0.8)
 Label(frame_selecao, text="Prefixo:").place(anchor='sw', rely=0.95)
