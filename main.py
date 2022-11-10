@@ -33,43 +33,43 @@ def gerar_codigo():
     print('PROJECT_REVISION = \"{}\"'.format(get_nome_do_projeto()))
 
 
-img_frame = LabelFrame(window, width=380, height=400, text="Cyclone IV")
-subframe2 = LabelFrame(window, width=350, height=400, text="Configurações do Sistema")
-subframe3 = Frame(window, width=350, height=50)
-subframe3.pack(fill=X, side=BOTTOM)
+frame_imagem = LabelFrame(window, width=380, height=400, text="Cyclone IV")
+frame_selecao = LabelFrame(window, width=350, height=400, text="Configurações do Sistema")
+frame_rodape = Frame(window, width=350, height=50)
+frame_rodape.pack(fill=X, side=BOTTOM)
 
 padding_x = 30
 ipad_x = 15
 
-Button(subframe3, text="Salvar Configuração").grid(row=0, column=0, padx=padding_x, pady=3, ipadx=ipad_x)
-Button(subframe3, text="Carregar Configuração").grid(row=0, column=1, padx=padding_x, pady=3, ipadx=ipad_x)
-Button(subframe3, text="Gerar", command = gerar_codigo).grid(row=0, column=2, padx=padding_x, pady=3, ipadx=ipad_x)
-Button(subframe3, text="Sair", command = get_prefixo).grid(row=0, column=3, padx=padding_x, pady=3, ipadx=ipad_x)
+Button(frame_rodape, text="Salvar Configuração").grid(row=0, column=0, padx=padding_x, pady=3, ipadx=ipad_x)
+Button(frame_rodape, text="Carregar Configuração").grid(row=0, column=1, padx=padding_x, pady=3, ipadx=ipad_x)
+Button(frame_rodape, text="Gerar", command = gerar_codigo).grid(row=0, column=2, padx=padding_x, pady=3, ipadx=ipad_x)
+Button(frame_rodape, text="Sair", command = get_prefixo).grid(row=0, column=3, padx=padding_x, pady=3, ipadx=ipad_x)
 
 image = ImageTk.PhotoImage(Image.open("assets/img.png"))
-img = Label(img_frame, image = image)
+img = Label(frame_imagem, image = image)
 img.place(relx=0.5, rely=0.5, anchor=CENTER)
-img_frame.pack(fill=X, side=LEFT)
+frame_imagem.pack(fill=X, side=LEFT)
 
-subframe2.pack(fill=X, side=LEFT)
-Label(subframe2, text="Nome do Projeto:").place(anchor='nw')
-Entry(subframe2, width=40, textvariable=nome_do_projeto).place(rely=0.06, anchor='nw')
+frame_selecao.pack(fill=X, side=LEFT)
+Label(frame_selecao, text="Nome do Projeto:").place(anchor='nw')
+Entry(frame_selecao, width=40, textvariable=nome_do_projeto).place(rely=0.06, anchor='nw')
 
-Checkbutton(subframe2, text='CLOCK', onvalue=True, offvalue=False).place(relx=0.05, rely=0.2)
-Checkbutton(subframe2, text='LED X 10', onvalue=True, offvalue=False).place(relx=0.05, rely=0.3)
-Checkbutton(subframe2, text='Botão x 2', onvalue=True, offvalue=False).place(relx=0.05, rely=0.4)
-Checkbutton(subframe2, text='VGA', onvalue=True, offvalue=False).place(relx=0.05, rely=0.5)
-Checkbutton(subframe2, text='Arduino Header', onvalue=True, offvalue=False).place(relx=0.05, rely=0.6)
+Checkbutton(frame_selecao, text='CLOCK', onvalue=True, offvalue=False).place(relx=0.05, rely=0.2)
+Checkbutton(frame_selecao, text='LED X 10', onvalue=True, offvalue=False).place(relx=0.05, rely=0.3)
+Checkbutton(frame_selecao, text='Botão x 2', onvalue=True, offvalue=False).place(relx=0.05, rely=0.4)
+Checkbutton(frame_selecao, text='VGA', onvalue=True, offvalue=False).place(relx=0.05, rely=0.5)
+Checkbutton(frame_selecao, text='Arduino Header', onvalue=True, offvalue=False).place(relx=0.05, rely=0.6)
 
 
-Checkbutton(subframe2, text='7-Segmentos X 6', onvalue=True, offvalue=False).place(relx=0.6, rely=0.2)
-Checkbutton(subframe2, text='Switch X 10', onvalue=True, offvalue=False).place(relx=0.6, rely=0.3)
-Checkbutton(subframe2, text='Acelerometro', onvalue=True, offvalue=False).place(relx=0.6, rely=0.4)
-Checkbutton(subframe2, text='SDRAM, 64 MB', onvalue=True, offvalue=False).place(relx=0.6, rely=0.5)
+Checkbutton(frame_selecao, text='7-Segmentos X 6', onvalue=True, offvalue=False).place(relx=0.6, rely=0.2)
+Checkbutton(frame_selecao, text='Switch X 10', onvalue=True, offvalue=False).place(relx=0.6, rely=0.3)
+Checkbutton(frame_selecao, text='Acelerometro', onvalue=True, offvalue=False).place(relx=0.6, rely=0.4)
+Checkbutton(frame_selecao, text='SDRAM, 64 MB', onvalue=True, offvalue=False).place(relx=0.6, rely=0.5)
 
-Label(subframe2, text="Cabeçalho 2x20 GPIO").place(anchor ='sw',rely=0.8)
-Label(subframe2, text="Prefixo:").place(anchor='sw', rely=0.95)
-Entry(subframe2, width=20, textvariable = prefixo).place(anchor='sw', rely=0.95, relx=0.15)
+Label(frame_selecao, text="Cabeçalho 2x20 GPIO").place(anchor ='sw', rely=0.8)
+Label(frame_selecao, text="Prefixo:").place(anchor='sw', rely=0.95)
+Entry(frame_selecao, width=20, textvariable = prefixo).place(anchor='sw', rely=0.95, relx=0.15)
 
 
 window.resizable(False, False)
