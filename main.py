@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter.filedialog import askdirectory
 from PIL import ImageTk, Image
 from datetime import datetime
 
@@ -23,6 +24,15 @@ check_button = BooleanVar()
 check_VGA = BooleanVar()
 check_acelerometro = BooleanVar()
 check_Arduino = BooleanVar()
+
+
+
+def get_diretorio_arquivos():
+    diretorio = askdirectory()
+    print(diretorio)
+    return diretorio
+
+
 def get_prefixo():
     print(prefixo.get())
 
@@ -30,9 +40,10 @@ def get_prefixo():
 def get_nome_do_projeto():
     return nome_do_projeto.get().upper()
 
-def gerar_arquivo_qpf():
+def gerar_arquivo_qpf(diretorio=''):
     projeto = get_nome_do_projeto()
     nome_arquivo='{}.qpf'.format(projeto)
+    nome_arquivo = diretorio + '/' + nome_arquivo
     data = datetime.now()
 
     qpf = open(nome_arquivo, 'w')
@@ -44,11 +55,143 @@ def gerar_arquivo_qpf():
     qpf.write('PROJECT_REVISION = \"{}\"\n'.format(get_nome_do_projeto()))
 
     qpf.close()
+def gerar_arquivo_qsf(diretorio=''):
+    projeto = get_nome_do_projeto()
+    nome_arquivo='{}.qsf'.format(projeto)
+    nome_arquivo = diretorio + '/' + nome_arquivo
+    data = datetime.now()
+
+    if check_SDRAM.get() == True:
+        with open('auxiliar/SDRAM_qsf.txt', 'r') as f:
+            SDRAM_buffer = f.read()
+
+    if check_segmentos.get() == True:
+        with open('auxiliar/SEG7_qsf.txt', 'r') as f:
+            SEG7_buffer = f.read()
+
+    if check_VGA.get():
+        with open('auxiliar/VGA_qsf.txt', 'r') as f:
+            VGA_buffer = f.read()
+
+    if check_Arduino.get():
+        with open('auxiliar/Arduino_qsf.txt', 'r') as f:
+            Arduino_buffer = f.read()
 
 
-def gerar_arquivo_v():
+
+    with open(nome_arquivo, 'w') as qsf:
+        qsf.write('#============================================================\n'
+                  '# Build by Terasic System Builder\n'
+                  '#============================================================\n\n')
+
+        qsf.write('set_global_assignment -name FAMILY "MAX 10 FPGA"\n')
+        qsf.write('set_global_assignment -name DEVICE 10M50DAF484C7G\n')
+        qsf.write('set_global_assignment -name TOP_LEVEL_ENTITY "{}"\n'.format(projeto))
+        qsf.write('set_global_assignment -name LAST_QUARTUS_VERSION "16.0.0"\n')
+        qsf.write('set_global_assignment -name PROJECT_CREATION_TIME_DATE "{}"\n'.format(data.strftime('%H:%M:%S %B %d,%Y')))
+        qsf.write('set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA\n')
+        qsf.write('set_global_assignment -name ORIGINAL_QUARTUS_VERSION "16.0.0"\n')
+        qsf.write('set_global_assignment -name DEVICE_FILTER_PIN_COUNT 484\n')
+        qsf.write('set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 7\n')
+        qsf.write('set_global_assignment -name SDC_FILE {}.SDC\n'.format(projeto))
+
+        if check_clock.get():
+            qsf.write('\n#============================================================\n'
+                      '# CLOCK\n'
+                      '#============================================================\n')
+            qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_CLK_10\n')
+            qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to MAX10_CLK1_50\n')
+            qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to MAX10_CLK2_50\n')
+            qsf.write('set_location_assignment PIN_N5 -to ADC_CLK_10\n')
+            qsf.write('set_location_assignment PIN_P11 -to MAX10_CLK1_50\n')
+            qsf.write('set_location_assignment PIN_N14 -to MAX10_CLK2_50\n')
+
+        if check_SDRAM.get():
+            qsf.write(SDRAM_buffer)
+            qsf.write('\n')
+
+        if check_segmentos.get():
+            qsf.write(SEG7_buffer)
+            qsf.write('\n')
+
+        if check_button.get():
+            qsf.write('set_instance_assignment -name IO_STANDARD "3.3 V Schmitt Trigger" -to KEY[0]\n')
+            qsf.write('set_instance_assignment -name IO_STANDARD "3.3 V Schmitt Trigger" -to KEY[1]\n')
+            qsf.write('set_location_assignment PIN_B8 -to KEY[0]\n')
+            qsf.write('set_location_assignment PIN_B8 -to KEY[1]\n')
+
+        if check_LED.get():
+            qsf.write('\n#============================================================\n'
+                      '# LED\n'
+                      '#============================================================\n\n')
+            for i in range(0, 10):
+                qsf.write('set_instance_assignment -name IO_STANDARD "3.3 V Schmitt Trigger" -to KEY[{}]\n'.format(i))
+
+            qsf.write('set_location_assignment PIN_A8 -to LEDR[0]\n')
+            qsf.write('set_location_assignment PIN_A9 -to LEDR[1]\n')
+            qsf.write('set_location_assignment PIN_A10 -to LEDR[2]\n')
+            qsf.write('set_location_assignment PIN_B10 -to LEDR[3]\n')
+            qsf.write('set_location_assignment PIN_D13 -to LEDR[4]\n')
+            qsf.write('set_location_assignment PIN_C13 -to LEDR[5]\n')
+            qsf.write('set_location_assignment PIN_E14 -to LEDR[6]\n')
+            qsf.write('set_location_assignment PIN_D14 -to LEDR[7]\n')
+            qsf.write('set_location_assignment PIN_A11 -to LEDR[8]\n')
+            qsf.write('set_location_assignment PIN_B11 -to LEDR[9]\n')
+
+        if check_switch.get():
+            qsf.write('\n#============================================================\n'
+                      '# SW\n'
+                      '#============================================================\n')
+
+            for i in range(0, 10):
+                qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SW[{}]\n'.format(i))
+
+            qsf.write('set_location_assignment PIN_C10 -to SW[0]\n')
+            qsf.write('set_location_assignment PIN_C11 -to SW[1]\n')
+            qsf.write('set_location_assignment PIN_D12 -to SW[2]\n')
+            qsf.write('set_location_assignment PIN_C12 -to SW[3]\n')
+            qsf.write('set_location_assignment PIN_A12 -to SW[4]\n')
+            qsf.write('set_location_assignment PIN_B12 -to SW[5]\n')
+            qsf.write('set_location_assignment PIN_A13 -to SW[6]\n')
+            qsf.write('set_location_assignment PIN_A14 -to SW[7]\n')
+            qsf.write('set_location_assignment PIN_B14 -to SW[8]\n')
+            qsf.write('set_location_assignment PIN_F15 -to SW[9]\n')
+            qsf.write('\n')
+
+        if check_VGA.get():
+            qsf.write(VGA_buffer)
+            qsf.write('\n')
+
+        if check_acelerometro.get():
+            qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GSENSOR_CS_N\n')
+            qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GSENSOR_INT[1]\n')
+            qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GSENSOR_INT[2]\n')
+            qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GSENSOR_SCLK\n')
+            qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GSENSOR_SDI\n')
+            qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GSENSOR_SDO\n')
+            qsf.write('set_location_assignment PIN_AB16 -to GSENSOR_CS_N\n')
+            qsf.write('set_location_assignment PIN_Y14 -to GSENSOR_INT[1]\n')
+            qsf.write('set_location_assignment PIN_Y13 -to GSENSOR_INT[2]\n')
+            qsf.write('set_location_assignment PIN_AB15 -to GSENSOR_SCLK\n')
+            qsf.write('set_location_assignment PIN_V11 -to GSENSOR_SDI\n')
+            qsf.write('set_location_assignment PIN_V12 -to GSENSOR_SDO\n')
+
+        if check_Arduino.get():
+            qsf.write(Arduino_buffer)
+
+        qsf.write('\n#============================================================\n'
+              '# End of pin assignments by Terasic System Builder'
+              '\n#============================================================\n\n')
+
+
+
+
+
+
+def gerar_arquivo_v(diretorio=''):
     projeto = get_nome_do_projeto()
     nome_arquivo='{}.v'.format(projeto)
+    nome_arquivo = diretorio + '/' + nome_arquivo
 
     v = open(nome_arquivo, 'w')
     v.write('module {}(\n'.format(projeto))
@@ -119,9 +262,10 @@ def gerar_arquivo_v():
     v.write('endmodule\n')
     v.close()
 
-def gerar_arquivo_sdc():
+def gerar_arquivo_sdc(diretorio=''):
     projeto = get_nome_do_projeto()
     nome_arquivo='{}.sdc'.format(projeto)
+    nome_arquivo = diretorio + '/' + nome_arquivo
 
     if check_clock.get() == True:
         f = open('auxiliar/com_clock.sdc', 'r')
@@ -138,15 +282,19 @@ def gerar_arquivo_sdc():
 
 
 def gerar_codigo():
-    #gerar_arquivo_qpf()
-    gerar_arquivo_sdc()
+    diretorio = get_diretorio_arquivos()
+
+    gerar_arquivo_qpf(diretorio)
+    gerar_arquivo_qsf(diretorio)
+    gerar_arquivo_sdc(diretorio)
+    gerar_arquivo_v(diretorio)
 
 
 def gerar_botoes_rodape(frame, padding_x=40, ipad_x=10):
-    Button(frame, text="Salvar Configuração").grid(row=0, column=0, padx=padding_x, pady=3, ipadx=ipad_x)
-    Button(frame, text="Carregar Configuração", command=gerar_arquivo_v).grid(row=0, column=1, padx=padding_x, pady=3, ipadx=ipad_x)
+    Button(frame, text="Salvar Configuração", command=get_diretorio_arquivos).grid(row=0, column=0, padx=padding_x, pady=3, ipadx=ipad_x)
+    Button(frame, text="Carregar Configuração").grid(row=0, column=1, padx=padding_x, pady=3, ipadx=ipad_x)
     Button(frame, text="Gerar", command=gerar_codigo).grid(row=0, column=2, padx=padding_x, pady=3, ipadx=ipad_x)
-    Button(frame, text="Sair", command=get_prefixo).grid(row=0, column=3, padx=padding_x, pady=3, ipadx=ipad_x)
+    Button(frame, text="Sair", command=window.destroy).grid(row=0, column=3, padx=padding_x, pady=3, ipadx=ipad_x)
 
 
 def gerar_rodape(largura, altura, background_color):
