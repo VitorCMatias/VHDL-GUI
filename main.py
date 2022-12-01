@@ -1,8 +1,10 @@
 from tkinter import *
 from tkinter.filedialog import askdirectory
+from tkinter import filedialog as fd
+from tkinter.messagebox import showinfo
 from PIL import ImageTk, Image
 from datetime import datetime
-
+import json
 
 
 window = Tk()
@@ -16,15 +18,25 @@ nome_do_projeto = StringVar()
 prefixo = StringVar()
 
 check_clock = BooleanVar()
-check_SDRAM = BooleanVar()
+check_SDRAM_64 = BooleanVar()
 check_segmentos = BooleanVar()
-check_switch = BooleanVar()
+check_chave = BooleanVar()
 check_LED = BooleanVar()
 check_button = BooleanVar()
 check_VGA = BooleanVar()
 check_GPIO = BooleanVar()
 check_LCD = BooleanVar()
-
+check_Ethernet = BooleanVar()
+check_I2C = BooleanVar()
+check_RS232 = BooleanVar()
+check_micro_SD = BooleanVar()
+check_SDRAM_512 = BooleanVar()
+check_PMOD = BooleanVar()
+check_flash_64 = BooleanVar()
+check_LED_RGB = BooleanVar()
+check_ADC = BooleanVar()
+check_DAC = BooleanVar()
+check_SA_SB = BooleanVar()
 
 
 def get_diretorio_arquivos():
@@ -37,8 +49,21 @@ def get_prefixo():
     print(prefixo.get())
 
 
+def get_arquivo(tipo):
+    tipo_do_arquivo = (('text files', tipo), ('All files', '*.*'))
+    nome_do_arquivo = fd.askopenfilename(title='Open a file', initialdir='/', filetypes=tipo_do_arquivo)
+
+    return nome_do_arquivo
+
+
+
+def gerar_caixa_de_dialogo(titulo, mensagem):
+    showinfo(title=titulo, message=mensagem)
+
+
 def get_nome_do_projeto():
     return nome_do_projeto.get().upper()
+
 
 def gerar_arquivo_qpf(diretorio=''):
     projeto = get_nome_do_projeto()
@@ -63,7 +88,7 @@ def gerar_arquivo_qsf(diretorio=''):
     nome_arquivo = diretorio + '/' + nome_arquivo
     data = datetime.now()
 
-    if check_SDRAM.get() == True:
+    if check_SDRAM_64.get() == True:
         with open('auxiliar/SDRAM_qsf.txt', 'r') as f:
             SDRAM_buffer = f.read()
 
@@ -108,7 +133,7 @@ def gerar_arquivo_qsf(diretorio=''):
             qsf.write('set_location_assignment PIN_P11 -to MAX10_CLK1_50\n')
             qsf.write('set_location_assignment PIN_N14 -to MAX10_CLK2_50\n')
 
-        if check_SDRAM.get():
+        if check_SDRAM_64.get():
             qsf.write(SDRAM_buffer)
             qsf.write('\n')
 
@@ -140,7 +165,7 @@ def gerar_arquivo_qsf(diretorio=''):
             qsf.write('set_location_assignment PIN_A11 -to LEDR[8]\n')
             qsf.write('set_location_assignment PIN_B11 -to LEDR[9]\n')
 
-        if check_switch.get():
+        if check_chave.get():
             qsf.write('\n#============================================================\n'
                       '# SW\n'
                       '#============================================================\n')
@@ -208,7 +233,7 @@ def gerar_arquivo_v(diretorio=''):
     if check_clock.get():
         v.write('\t//////////// CLOCK ////////////\n')
         v.write('\tinput\t\t\t\t\tADC_CLK_10,\n\tinput\t\t\t\t\tMAX10_CLK1_50,\n\tinput\t\t\t\t\tMAX10_CLK2_50\n')
-    if check_SDRAM.get():
+    if check_SDRAM_64.get():
         v.write('\n\t//////////// SDRAM ////////////\n')
         v.write('\toutput\t\t[12:0]\t\tDRAM_ADDR,\n')
         v.write('\toutput\t\t [1:0]\t\tDRAM_BA,\n')
@@ -231,7 +256,7 @@ def gerar_arquivo_v(diretorio=''):
         v.write('\toutput\t\t [7:0]\t\tHEX4,\n')
         v.write('\toutput\t\t [7:0]\t\tHEX5,\n')
 
-    if check_switch.get():
+    if check_chave.get():
         v.write('\n\t//////////// KEY ////////////\n')
         v.write('\tinput\t\t [1:0]\t\tinput,\n')
 
@@ -290,6 +315,7 @@ def gerar_arquivo_sdc(diretorio=''):
     sdc.write(buffer)
     sdc.close()
 
+
 def gerar_codigo():
     diretorio = get_diretorio_arquivos()
 
@@ -300,8 +326,8 @@ def gerar_codigo():
 
 
 def gerar_botoes_rodape(frame, padding_x=40, ipad_x=10):
-    Button(frame, text="Salvar Configuração", command=get_diretorio_arquivos).grid(row=0, column=0, padx=padding_x, pady=3, ipadx=ipad_x)
-    Button(frame, text="Carregar Configuração").grid(row=0, column=1, padx=padding_x, pady=3, ipadx=ipad_x)
+    Button(frame, text="Salvar Configuração", command=get_estados).grid(row=0, column=0, padx=padding_x, pady=3, ipadx=ipad_x)
+    Button(frame, text="Carregar Configuração", command=set_estados).grid(row=0, column=1, padx=padding_x, pady=3, ipadx=ipad_x)
     Button(frame, text="Gerar", command=gerar_codigo).grid(row=0, column=2, padx=padding_x, pady=3, ipadx=ipad_x)
     Button(frame, text="Sair", command=window.destroy).grid(row=0, column=3, padx=padding_x, pady=3, ipadx=ipad_x)
 
@@ -310,6 +336,69 @@ def gerar_rodape(largura, altura, background_color):
     frame_rodape = Frame(window, width=largura, height=altura, bg=background_color)
     frame_rodape.pack(fill=X, side=BOTTOM)
     gerar_botoes_rodape(frame_rodape)
+
+
+def get_estados():
+    estados = {
+        'projeto_nome': get_nome_do_projeto(),
+        'check_clock': check_clock.get(),
+        'check_SDRAM_64': check_SDRAM_64.get(),
+        'check_segmentos': check_segmentos.get(),
+        'check_chave': check_chave.get(),
+        'check_LED': check_LED.get(),
+        'check_button': check_button.get(),
+        'check_VGA': check_VGA.get(),
+        'check_GPIO': check_GPIO.get(),
+        'check_LCD': check_LCD.get(),
+        'check_Ethernet': check_Ethernet.get(),
+        'check_I2C': check_I2C.get(),
+        'check_RS232': check_RS232.get(),
+        'check_micro_SD': check_micro_SD.get(),
+        'check_SDRAM_512': check_SDRAM_512.get(),
+        'check_PMOD': check_PMOD.get(),
+        'check_flash_64': check_flash_64.get(),
+        'check_LED_RGB': check_LED_RGB.get(),
+        'check_ADC': check_ADC.get(),
+        'check_DAC': check_DAC.get(),
+        'check_SA_SB': check_SA_SB.get()
+    }
+
+    tipo_do_arquivo = (('text files', '.json'), ('All files', '*.*'))
+
+    arquivo = fd.asksaveasfile(mode='w', filetypes=tipo_do_arquivo, defaultextension='.json')
+
+    if arquivo is None:  # asksaveasfile return `None` if dialog closed with "cancel".
+        return
+
+    json.dump(estados, arquivo)
+
+
+def set_estados():
+    with open(get_arquivo('.json')) as f:
+        data = json.load(f)
+
+    nome_do_projeto.set(data['projeto_nome'])
+
+    check_clock.set(data['check_clock'])
+    check_SDRAM_64.set(data['check_SDRAM_64'])
+    check_segmentos.set(data['check_segmentos'])
+    check_chave.set(data['check_chave'])
+    check_LED.set(data['check_LED'])
+    check_button.set(data['check_button'])
+    check_VGA.set(data['check_VGA'])
+    check_GPIO.set(data['check_GPIO'])
+    check_LCD.set(data['check_LCD'])
+    check_Ethernet.set(data['check_Ethernet'])
+    check_I2C.set(data['check_I2C'])
+    check_RS232.set(data['check_RS232'])
+    check_micro_SD.set(data['check_micro_SD'])
+    check_SDRAM_512.set(data['check_SDRAM_512'])
+    check_PMOD.set(data['check_PMOD'])
+    check_flash_64.set(data['check_flash_64'])
+    check_LED_RGB.set(data['check_LED_RGB'])
+    check_ADC.set(data['check_ADC'])
+    check_DAC.set(data['check_DAC'])
+    check_SA_SB.set(data['check_SA_SB'])
 
 
 frame_selecao = LabelFrame(window, width=350, height=410, text="Configurações do Sistema")
@@ -330,22 +419,25 @@ criar_selecao('LED 8X5', check_LED, 1, 3)
 criar_selecao('Botão x12', check_button, 1, 4)
 criar_selecao('VGA', check_VGA, 1, 5)
 criar_selecao('LCD', check_LCD, 1, 6)
-criar_selecao('SDRAM 512Mbit', check_SDRAM, 1, 7)
-criar_selecao('Conector Micro SD', check_SDRAM, 1, 8)
-criar_selecao('Serial RS232', check_SDRAM, 1, 9)
-criar_selecao('Sensor de temperatura I²C', check_SDRAM, 1, 10)
-criar_selecao('10/100 Ethernet PHY', check_SDRAM, 1, 11)
+criar_selecao('SDRAM 512Mbit', check_SDRAM_512, 1, 7)
+criar_selecao('Conector Micro SD', check_micro_SD, 1, 8)
+criar_selecao('Serial RS232', check_RS232, 1, 9)
+criar_selecao('Sensor de temperatura I²C', check_I2C, 1, 10)
+criar_selecao('10/100 Ethernet PHY', check_Ethernet, 1, 11)
 
 criar_selecao('7-Segmentos X 2', check_segmentos, 2, 2)
-criar_selecao('Chave X4', check_switch, 2, 3)
+criar_selecao('Chave X4', check_chave, 2, 3)
 criar_selecao('Conector 2x GPIO', check_GPIO, 2, 4)
-criar_selecao('SDRAM, 64 MB', check_SDRAM, 2, 5)
-criar_selecao('SA e SB', check_SDRAM, 2, 6)
-criar_selecao('DAC', check_SDRAM, 2, 7)
-criar_selecao('ADC', check_SDRAM, 2, 8)
-criar_selecao('LED RGB', check_SDRAM, 2, 9)
-criar_selecao('FLASH 64Mbit', check_SDRAM, 2, 10)
-criar_selecao('PMOD x2', check_SDRAM, 2, 11)
+criar_selecao('SDRAM, 64 MB', check_SDRAM_64, 2, 5)
+criar_selecao('SA e SB', check_SA_SB, 2, 6)
+criar_selecao('DAC', check_DAC, 2, 7)
+criar_selecao('ADC', check_ADC, 2, 8)
+criar_selecao('LED RGB', check_LED_RGB, 2, 9)
+criar_selecao('FLASH 64Mbit', check_flash_64, 2, 10)
+criar_selecao('PMOD x2', check_PMOD, 2, 11)
+
+
+
 
 
 
