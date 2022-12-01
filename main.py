@@ -8,7 +8,7 @@ from datetime import datetime
 window = Tk()
 window.title("Gerador de Código")
 
-window.geometry("730x450")
+window.geometry("730x480")
 window.configure(bg="#FFFFFF")
 
 
@@ -22,8 +22,8 @@ check_switch = BooleanVar()
 check_LED = BooleanVar()
 check_button = BooleanVar()
 check_VGA = BooleanVar()
-check_acelerometro = BooleanVar()
-check_Arduino = BooleanVar()
+check_GPIO = BooleanVar()
+check_LCD = BooleanVar()
 
 
 
@@ -55,6 +55,8 @@ def gerar_arquivo_qpf(diretorio=''):
     qpf.write('PROJECT_REVISION = \"{}\"\n'.format(get_nome_do_projeto()))
 
     qpf.close()
+
+
 def gerar_arquivo_qsf(diretorio=''):
     projeto = get_nome_do_projeto()
     nome_arquivo='{}.qsf'.format(projeto)
@@ -73,7 +75,7 @@ def gerar_arquivo_qsf(diretorio=''):
         with open('auxiliar/VGA_qsf.txt', 'r') as f:
             VGA_buffer = f.read()
 
-    if check_Arduino.get():
+    if check_LCD.get():
         with open('auxiliar/Arduino_qsf.txt', 'r') as f:
             Arduino_buffer = f.read()
 
@@ -162,7 +164,7 @@ def gerar_arquivo_qsf(diretorio=''):
             qsf.write(VGA_buffer)
             qsf.write('\n')
 
-        if check_acelerometro.get():
+        if check_GPIO.get():
             qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GSENSOR_CS_N\n')
             qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GSENSOR_INT[1]\n')
             qsf.write('set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GSENSOR_INT[2]\n')
@@ -176,7 +178,7 @@ def gerar_arquivo_qsf(diretorio=''):
             qsf.write('set_location_assignment PIN_V11 -to GSENSOR_SDI\n')
             qsf.write('set_location_assignment PIN_V12 -to GSENSOR_SDO\n')
 
-        if check_Arduino.get():
+        if check_LCD.get():
             qsf.write(Arduino_buffer)
 
         qsf.write('\n#============================================================\n'
@@ -184,8 +186,15 @@ def gerar_arquivo_qsf(diretorio=''):
               '\n#============================================================\n\n')
 
 
+def criar_selecao(label, varialvel, coluna, posicao):
+    espacamento = 13
 
-
+    if coluna == 1:
+        Checkbutton(frame_selecao, text=label, onvalue=True, offvalue=False, variable=varialvel).place(relx=0.05, rely=posicao/espacamento)
+    elif coluna == 2:
+        Checkbutton(frame_selecao, text=label, onvalue=True, offvalue=False, variable=varialvel).place(relx=0.6, rely=posicao/espacamento)
+    else:
+        print('Só há duas colunas')
 
 
 def gerar_arquivo_v(diretorio=''):
@@ -238,7 +247,7 @@ def gerar_arquivo_v(diretorio=''):
         v.write('\toutput\t\t [3:0]\t\tVGA_R,\n')
         v.write('\toutput\t\t      \t\tVGA_VS,\n')
 
-    if check_acelerometro.get():
+    if check_GPIO.get():
         v.write('\n\t//////////// Accelerometer ////////////\n')
         v.write('\toutput\t\t      \t\tGSENSOR_CS_N,\n')
         v.write('\tinput\t\t [2:1]\t\tGSENSOR_INT,\n')
@@ -246,7 +255,7 @@ def gerar_arquivo_v(diretorio=''):
         v.write('\tinout\t\t      \t\tGSENSOR_SDI,\n')
         v.write('\tinout\t\t      \t\tGSENSOR_SDO,\n')
 
-    if check_Arduino.get():
+    if check_LCD.get():
         v.write('\n\t//////////// Arduino ////////////\n')
         v.write('\tinout\t\t [15:0]\t\tARDUINO_IO,\n')
         v.write('\tinout\t\t      \t\tARDUINO_RESET_N,\n')
@@ -261,6 +270,7 @@ def gerar_arquivo_v(diretorio=''):
     v.write('\n\n\n\n')
     v.write('endmodule\n')
     v.close()
+
 
 def gerar_arquivo_sdc(diretorio=''):
     projeto = get_nome_do_projeto()
@@ -279,7 +289,6 @@ def gerar_arquivo_sdc(diretorio=''):
     sdc = open(nome_arquivo, 'w')
     sdc.write(buffer)
     sdc.close()
-
 
 def gerar_codigo():
     diretorio = get_diretorio_arquivos()
@@ -303,33 +312,46 @@ def gerar_rodape(largura, altura, background_color):
     gerar_botoes_rodape(frame_rodape)
 
 
-frame_selecao = LabelFrame(window, width=350, height=400, text="Configurações do Sistema")
+frame_selecao = LabelFrame(window, width=350, height=410, text="Configurações do Sistema")
 
 gerar_rodape(350, 50, "#f0f0f0")
 
-frame_imagem = LabelFrame(window, width=380, height=400, text="Cyclone IV")
+frame_imagem = LabelFrame(window, width=380, height=410, text="Cyclone IV")
 image = ImageTk.PhotoImage(Image.open("assets/img.png"))
 Label(frame_imagem, image=image).place(relx=0.5, rely=0.5, anchor=CENTER)
 frame_imagem.pack(fill=X, side=LEFT)
 
 frame_selecao.pack(fill=X, side=LEFT)
-Label(frame_selecao, text="Nome do Projeto:").place(anchor='nw')
-Entry(frame_selecao, width=40, textvariable=nome_do_projeto).place(rely=0.06, anchor='nw')
+Label(frame_selecao, text="Nome do Projeto:").place(relx=0.05, anchor='nw')
+Entry(frame_selecao, width=40, textvariable=nome_do_projeto).place(relx=0.05, rely=0.06, anchor='nw')
 
-Checkbutton(frame_selecao, text='CLOCK', onvalue=True, offvalue=False, variable=check_clock).place(relx=0.05, rely=0.2)
-Checkbutton(frame_selecao, text='LED X 10', onvalue=True, offvalue=False, variable=check_LED).place(relx=0.05, rely=0.3)
-Checkbutton(frame_selecao, text='Botão x 2', onvalue=True, offvalue=False,variable=check_button).place(relx=0.05, rely=0.4)
-Checkbutton(frame_selecao, text='VGA', onvalue=True, offvalue=False,variable=check_VGA).place(relx=0.05, rely=0.5)
-Checkbutton(frame_selecao, text='Arduino Header', onvalue=True, offvalue=False,variable=check_Arduino).place(relx=0.05, rely=0.6)
+criar_selecao('CLOCK', check_clock, 1, 2)
+criar_selecao('LED 8X5', check_LED, 1, 3)
+criar_selecao('Botão x12', check_button, 1, 4)
+criar_selecao('VGA', check_VGA, 1, 5)
+criar_selecao('LCD', check_LCD, 1, 6)
+criar_selecao('SDRAM 512Mbit', check_SDRAM, 1, 7)
+criar_selecao('Conector Micro SD', check_SDRAM, 1, 8)
+criar_selecao('Serial RS232', check_SDRAM, 1, 9)
+criar_selecao('Sensor de temperatura I²C', check_SDRAM, 1, 10)
+criar_selecao('10/100 Ethernet PHY', check_SDRAM, 1, 11)
 
-Checkbutton(frame_selecao, text='7-Segmentos X 6', onvalue=True, offvalue=False,variable=check_segmentos).place(relx=0.6, rely=0.2)
-Checkbutton(frame_selecao, text='Switch X 10', onvalue=True, offvalue=False,variable=check_switch).place(relx=0.6, rely=0.3)
-Checkbutton(frame_selecao, text='Acelerometro', onvalue=True, offvalue=False, variable=check_acelerometro).place(relx=0.6, rely=0.4)
-Checkbutton(frame_selecao, text='SDRAM, 64 MB', onvalue=True, offvalue=False, variable=check_SDRAM).place(relx=0.6, rely=0.5)
+criar_selecao('7-Segmentos X 2', check_segmentos, 2, 2)
+criar_selecao('Chave X4', check_switch, 2, 3)
+criar_selecao('Conector 2x GPIO', check_GPIO, 2, 4)
+criar_selecao('SDRAM, 64 MB', check_SDRAM, 2, 5)
+criar_selecao('SA e SB', check_SDRAM, 2, 6)
+criar_selecao('DAC', check_SDRAM, 2, 7)
+criar_selecao('ADC', check_SDRAM, 2, 8)
+criar_selecao('LED RGB', check_SDRAM, 2, 9)
+criar_selecao('FLASH 64Mbit', check_SDRAM, 2, 10)
+criar_selecao('PMOD x2', check_SDRAM, 2, 11)
 
-Label(frame_selecao, text="Cabeçalho 2x20 GPIO").place(anchor ='sw', rely=0.8)
-Label(frame_selecao, text="Prefixo:").place(anchor='sw', rely=0.95)
-Entry(frame_selecao, width=20, textvariable=prefixo).place(anchor='sw', rely=0.95, relx=0.15)
+
+
+#Label(frame_selecao, text="Conector 2x GPIO").place(anchor ='sw', rely=0.8)
+#Label(frame_selecao, text="Prefixo:").place(anchor='sw', rely=0.95)
+#Entry(frame_selecao, width=20, textvariable=prefixo).place(anchor='sw', rely=0.95, relx=0.15)
 
 
 window.resizable(False, False)
